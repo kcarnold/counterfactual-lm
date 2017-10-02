@@ -8,6 +8,8 @@ import seaborn as sns
 import tqdm
 from joblib import Memory
 import util
+import decoder
+from paths import paths
 
 from util import logsumexp
 from counterfactual import get_features, Objective, contextual_expected_reward_samples
@@ -18,11 +20,9 @@ mem = Memory('cache')
 
 #%% Load docs
 print("Loading docs")
-docsets = {k: pickle.load(open('../yelp_preproc/{}_data.pkl'.format(k), 'rb')) for k in ['train', 'valid', 'test']}
+docsets = {k: pickle.load(open(paths.parent + '/yelp_preproc/{}_data.pkl'.format(k), 'rb')) for k in ['train', 'valid', 'test']}
 
 #%% Load model
-import decoder
-from paths import paths
 all_model = decoder.Model.from_basename(paths.model_basename('yelp_all_as_sents'))
 all_model.prune_bigrams()
 
@@ -303,9 +303,12 @@ def subsample_trial(i, num_train, M, ref_suggestions, ref_feats, ref_scores, acc
 #%%
 def trial_wrapper(args):
     import traceback
-    i, num_train, M, scores, policy = args
+    basename, i, num_train, M, scores, policy = args
     try:
-        return subsample_trial(i=i, num_train=num_train, ref_scores=scores, M=M, ref_suggestions=ref_suggestions, ref_feats=ref_feats, accept_policy=policy)
+        res = subsample_trial(i=i, num_train=num_train, ref_scores=scores, M=M, ref_suggestions=ref_suggestions, ref_feats=ref_feats, accept_policy=policy)
+        with open('{}-subsample-trial-{}.pkl'.format(basename, i), 'wb') as f:
+            pickle.dump(dict(args=args, res=res), f, -1)
+        return res
     except Exception:
         traceback.print_exc()
 
@@ -315,7 +318,7 @@ def run_subsample_trial(basename, num_trains, Ms, policy):
     scores = all_action_scores(contexts, ref_suggestions, policy)
     params = [(num_train, M) for num_train in num_trains for M in Ms]
     trials = Parallel(n_jobs=-1, verbose=10, backend='multiprocessing')(
-        delayed(trial_wrapper)((i, num_train, M, scores, policy))
+        delayed(trial_wrapper)((basename, i, num_train, M, scores, policy))
         for i, (num_train, M) in enumerate(params))
     with open(basename+'-subsample_trials.pkl', 'wb') as f:
         pickle.dump(dict(params=params, trials=trials, baseline_scores=scores), f, -1)
@@ -325,7 +328,7 @@ run_subsample_trial(
     NAME,
     # num_trains=np.logspace(0, np.log10(1000),10).astype(int),#np.logspace(2, np.log10(2000), 5).astype(int),
     num_trains=np.linspace(10, 2000, 20).astype(int),
-    Ms=np.ones(1) * 10.,
+    Ms=np.ones(10) * 10.,
     policy=longword_policy)
 
 #%%
@@ -356,14 +359,15 @@ def plot_results(data, name):
             if M < 3: continue
             data_mean = data.groupby('num_train').mean().reset_index()
             data_sem = data.groupby('num_train').sem().reset_index()
-            plt.plot(data_mean['num_train'], data_mean['reward_estimate'], ':', label='counterfactual estimate from training'.format(M), color=color)
-            plt.plot(data_mean['num_train'], data_mean['mean'], label='actual performance on testing'.format(M), color=color)
+            plt.errorbar(data_mean['num_train'], data_mean['reward_estimate'], yerr=data_sem['reward_estimate'], linestyle=':', label='counterfactual estimate from training'.format(M), color=color)
+            plt.errorbar(data_mean['num_train'], data_mean['mean'], yerr=data_sem['mean'], label='actual performance on testing'.format(M), color=color)
         orig_reward = np.mean(np.sum(act_num_words * np.exp(baseline_scores), axis=1))
         plt.hlines(orig_reward, *plt.xlim(), label='logging policy $h_0$')
         plt.legend(loc='best')
         plt.xlabel("# training samples")
-        plt.ylabel("Reward (# words per suggestion)")
+        plt.ylabel("Reward (# words accepted per suggestion)")
         plt.ylim([0, 4])
+        plt.tight_layout()
 
 d = pickle.load(open(f'{NAME}-subsample_trials.pkl', 'rb'))
 plot_results(d, NAME)
