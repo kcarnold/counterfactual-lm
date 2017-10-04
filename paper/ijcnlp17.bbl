@@ -1,0 +1,136 @@
+\begin{thebibliography}{19}
+\expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+
+\bibitem[{Arnold et~al.(2016)Arnold, Gajos, and Kalai}]{megasuggestUI}
+Kenneth~C. Arnold, Krzysztof~Z. Gajos, and Adam~T. Kalai. 2016.
+\newblock On suggesting phrases vs. predicting words for mobile text
+  composition.
+\newblock In \emph{Proceedings of UIST '16}.
+
+\bibitem[{Bickel et~al.(2005)Bickel, Haider, and Scheffer}]{bickel2005learning}
+Steffen Bickel, Peter Haider, and Tobias Scheffer. 2005.
+\newblock Learning to complete sentences.
+\newblock In \emph{Machine Learning: ECML 2005}, pages 497--504. Springer.
+
+\bibitem[{Heafield et~al.(2013)Heafield, Pouzyrevsky, Clark, and
+  Koehn}]{KenLM-Heafield-estimate}
+Kenneth Heafield, Ivan Pouzyrevsky, Jonathan~H. Clark, and Philipp Koehn. 2013.
+\newblock Scalable modified {Kneser-Ney} language model estimation.
+\newblock In \emph{Proceedings of the 51st Annual Meeting of the Association
+  for Computational Linguistics}, pages 690--696, Sofia, Bulgaria.
+
+\bibitem[{Ionides(2008)}]{ionides2008truncated}
+Edward~L Ionides. 2008.
+\newblock Truncated importance sampling.
+\newblock \emph{Journal of Computational and Graphical Statistics},
+  17(2):295--311.
+
+\bibitem[{Jiang et~al.(2014)Jiang, Ke, Chien, and
+  Cheng}]{Jiang:2014:LUR:2600428.2609614}
+Jyun-Yu Jiang, Yen-Yu Ke, Pao-Yu Chien, and Pu-Jen Cheng. 2014.
+\newblock \href {https://doi.org/10.1145/2600428.2609614} {Learning user
+  reformulation behavior for query auto-completion}.
+\newblock In \emph{Proceedings of the 37th International ACM SIGIR Conference
+  on Research \&\#38; Development in Information Retrieval}, SIGIR '14, pages
+  445--454, New York, NY, USA. ACM.
+
+\bibitem[{Johnson et~al.(2016)Johnson, Schuster, Le, Krikun, Wu, Chen, Thorat,
+  Vi{\'{e}}gas, Wattenberg, Corrado, Hughes, and Dean}]{JohnsonSLKWCTVW16}
+Melvin Johnson, Mike Schuster, Quoc~V. Le, Maxim Krikun, Yonghui Wu, Zhifeng
+  Chen, Nikhil Thorat, Fernanda~B. Vi{\'{e}}gas, Martin Wattenberg, Greg
+  Corrado, Macduff Hughes, and Jeffrey Dean. 2016.
+\newblock \href {http://arxiv.org/abs/1611.04558} {Google's multilingual neural
+  machine translation system: Enabling zero-shot translation}.
+\newblock \emph{CoRR}, abs/1611.04558.
+
+\bibitem[{Kannan et~al.(2016)Kannan, Kurach, Ravi, Kaufmann, Tomkins, Miklos,
+  Corrado, Lukacs, Ganea, Young, and Ramavajjala}]{smartreply2016}
+Anjuli Kannan, Karol Kurach, Sujith Ravi, Tobias Kaufmann, Andrew Tomkins,
+  Balint Miklos, Greg Corrado, Laszlo Lukacs, Marina Ganea, Peter Young, and
+  Vivek Ramavajjala. 2016.
+\newblock \href {https://arxiv.org/pdf/1606.04870.pdf} {Smart reply: Automated
+  response suggestion for email}.
+\newblock In \emph{Proceedings of the ACM SIGKDD Conference on Knowledge
+  Discovery and Data Mining (KDD)}.
+
+\bibitem[{Kim et~al.(2016)Kim, Jernite, Sontag, and Rush}]{kim2016character}
+Yoon Kim, Yacine Jernite, David Sontag, and Alexander~M Rush. 2016.
+\newblock Character-aware neural language models.
+\newblock In \emph{Proceedings of the National Conference on Artificial
+  Intelligence (AAAI)}.
+
+\bibitem[{Kneser and Ney(1995)}]{kneser1995improved}
+Reinhard Kneser and Hermann Ney. 1995.
+\newblock Improved backing-off for m-gram language modeling.
+\newblock In \emph{Proceedings of the IEEE International Conference on
+  Acoustics, Speech and Signal Processing (ICASSP)}. IEEE.
+
+\bibitem[{Lafferty et~al.(2001)Lafferty, McCallum, and Pereira}]{lafferty01crf}
+John Lafferty, Andrew McCallum, and Fernando Pereira. 2001.
+\newblock Conditional random fields: Probabilistic models for segmenting and
+  labeling sequence data.
+\newblock In \emph{Proceedings of the International Conference on Machine
+  Learning (ICML)}, pages 282--289.
+
+\bibitem[{Lee et~al.(2017)Lee, Tseng, Wen, Tsao, Lee, Tseng, Wen, and
+  Tsao}]{Lee:2017:PRL:3105672.3105673}
+Hung-Yi Lee, Bo-Hsiang Tseng, Tsung-Hsien Wen, Yu~Tsao, Hung-Yi Lee, Bo-Hsiang
+  Tseng, Tsung-Hsien Wen, and Yu~Tsao. 2017.
+\newblock \href {https://doi.org/10.1109/TASLP.2016.2635445} {Personalizing
+  recurrent-neural-network-based language model by social network}.
+\newblock \emph{IEEE/ACM Trans. Audio, Speech and Lang. Proc.}, 25(3):519--530.
+
+\bibitem[{Mani(2001)}]{mani-book01}
+Inderjeet Mani. 2001.
+\newblock \emph{Automatic Summarization}, volume~3 of \emph{Natural Language
+  Processing}.
+\newblock John Benjamins Publishing Company, Amsterdam/Philadelphia.
+
+\bibitem[{McCallum et~al.(2000)McCallum, Freitag, and Pereira}]{mccallum00memm}
+Andrew McCallum, Dayne Freitag, and Fernando Pereira. 2000.
+\newblock Maximum entropy {Markov} models for information extraction and
+  segmentation.
+\newblock In \emph{Proceedings of the International Conference on Machine
+  Learning (ICML)}.
+
+\bibitem[{Mikolov and Zweig(2012)}]{mikolov2012context}
+Tomas Mikolov and Geoffrey Zweig. 2012.
+\newblock Context dependent recurrent neural network language model.
+\newblock In \emph{SLT}, pages 234--239.
+
+\bibitem[{Nandi and Jagadish(2007)}]{nandi2007effective}
+Arnab Nandi and HV~Jagadish. 2007.
+\newblock Effective phrase prediction.
+\newblock In \emph{Proceedings of the 33rd international conference on Very
+  large data bases}, pages 219--230. VLDB Endowment.
+
+\bibitem[{Quinn and Zhai(2016)}]{Quinn2016:CostBenefitSuggestion}
+Philip Quinn and Shumin Zhai. 2016.
+\newblock \href {https://doi.org/10.1145/2858036.2858305} {{A Cost-Benefit
+  Study of Text Entry Suggestion Interaction}}.
+\newblock \emph{Proceedings of the 2016 CHI Conference on Human Factors in
+  Computing Systems}, pages 83--88.
+
+\bibitem[{Rambow et~al.(2001)Rambow, Bangalore, and Walker}]{rambow2001natural}
+Owen Rambow, Srinivas Bangalore, and Marilyn Walker. 2001.
+\newblock Natural language generation in dialog systems.
+\newblock In \emph{Proceedings of the first international conference on Human
+  language technology research}, pages 1--4.
+
+\bibitem[{Sordoni et~al.(2015)Sordoni, Galley, Auli, Brockett, Ji, Mitchell,
+  Nie, Gao, and Dolan}]{sordoni15conversation}
+Alessandro Sordoni, Michel Galley, Michael Auli, Chris Brockett, Yangfeng Ji,
+  Margaret Mitchell, Jian-Yun Nie, Jianfeng Gao, and Bill Dolan. 2015.
+\newblock A neural network approach to context-sensitive generation of
+  conversational responses.
+\newblock In \emph{Proceedings of the Conference of the North American Chapter
+  of the Association for Computational Linguistics (NAACL)}.
+
+\bibitem[{Swaminathan and Joachims(2015)}]{Swaminathan2015counterfactual}
+Adith Swaminathan and Thorsten Joachims. 2015.
+\newblock Counterfactual risk minimization.
+\newblock In \emph{Proceedings of the 24th International Conference on World
+  Wide Web Companion}, pages 939--941. International World Wide Web Conferences
+  Steering Committee.
+
+\end{thebibliography}
