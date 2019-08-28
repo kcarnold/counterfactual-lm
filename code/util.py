@@ -20,7 +20,7 @@ def fig(basename, **kw):
 
 
 import numpy as np
-from scipy.misc import logsumexp
+from scipy.special import logsumexp
 try:
     import numba
     @numba.jit(nopython=True)
