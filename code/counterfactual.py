@@ -43,7 +43,8 @@ def get_features(base_model, context_toks, seq, prefix=None, length_bonus_min_le
         possible_word_indices, offset_of_chosen_word, base_logprobs = get_conditional_logprobs(
             base_model, context_toks, seq, prefix_logprobs=prefix_logprobs)
     except Exception:
-        return None
+        #return None
+        raise
 
     pos_onehot = np.eye(len(base_model.id2tag))
 
