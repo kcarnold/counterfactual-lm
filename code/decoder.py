@@ -1,16 +1,18 @@
-import kenlm
 import heapq
-import pickle
-import os
-import sys
 import itertools
-import datrie
+import os
+import pickle
+import sys
 from collections import defaultdict
-import numpy as np
-import nltk
 
+import kenlm
+import nltk
+import numpy as np
+
+import datrie
 from paths import paths
 from tokenization import tokenize_mid_document
+from util import logsumexp
 
 LOG10 = np.log(10)
 
