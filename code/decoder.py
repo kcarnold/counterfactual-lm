@@ -53,7 +53,7 @@ def encode_bigrams(bigrams, model):
 
 
 
-class Model:
+class LanguageModel:
     def __init__(self, model_file, bigrams_file, arpa_file):
         print("Loading model", file=sys.stderr)
         self.model = kenlm.LanguageModel(model_file)
@@ -82,8 +82,8 @@ class Model:
         for i, s in id2str_dict.items():
             self.vocab_trie[s] = i
 
-        self.eos_idx = self.model.vocab_index('</S>')
-        self.eop_idx = self.model.vocab_index('</s>')
+        self.eos = '</S>'
+        self.eop = '</s>'
 
     def prune_bigrams(self):
         # Filter bigrams to only include words that actually follow
@@ -150,7 +150,7 @@ class Model:
         score = 0.
         for word in words:
             new_state = kenlm.State()
-            score += self.model.base_score_from_idx(state, self.model.vocab_index(word), new_state)
+            score += self.model.BaseScore(state, word, new_state)
             state = new_state
         return score * LOG10, state
 
@@ -158,7 +158,7 @@ class Model:
         scores = []
         for word in words:
             new_state = kenlm.State()
-            scores.append(LOG10 * self.model.base_score_from_idx(state, self.model.vocab_index(word), new_state))
+            scores.append(LOG10 * self.model.BaseScore(state, word, new_state))
             state = new_state
         return scores
 
@@ -175,7 +175,7 @@ class Model:
             next_words = bigrams.get(self.model.vocab_index(prev_word), [])
             if len(next_words) == 0:
                 next_words = bigrams.get(self.model.vocab_index('<S>'), [])
-            next_words = [w for w in next_words if w != self.eos_idx and w != self.eop_idx]
+            next_words = [w for w in next_words if w != self.eos and w != self.eop]
         if len(next_words) == 0:
             return [], np.zeros(0)
         new_state = kenlm.State()
@@ -189,13 +189,15 @@ class Model:
         return next_words, logprobs
 
 
+# Temp alias
+Model = LanguageModel
+
 models = {name: Model.from_basename(paths.model_basename(name)) for name in ['yelp_train']}
 def get_model(name):
     return models[name]
 
 
 
-from scipy.misc import logsumexp
 def softmax(scores):
     return np.exp(scores - logsumexp(scores))
 
@@ -294,13 +296,13 @@ def beam_search_phrases(model, start_words, beam_width, length, prefix_probs=Non
         bigrams = model.unfiltered_bigrams if i == 0 else model.filtered_bigrams
         prefix_chars = 1 if i > 0 else 0
         def candidates():
-            for score, words, done, penultimate_state, last_word_idx, num_chars in beam:
+            for score, words, done, penultimate_state, last_word, num_chars in beam:
                 if done:
-                    yield score, words, done, penultimate_state, last_word_idx, num_chars
+                    yield score, words, done, penultimate_state, last_word, num_chars
                     continue
-                if last_word_idx is not None:
+                if last_word is not None:
                     last_state = kenlm.State()
-                    model.model.base_score_from_idx(penultimate_state, last_word_idx, last_state)
+                    model.model.base_score(penultimate_state, last_word, last_state)
                 else:
                     last_state = penultimate_state
                 probs = None
@@ -308,26 +310,26 @@ def beam_search_phrases(model, start_words, beam_width, length, prefix_probs=Non
                     next_words = []
                     probs = []
                     for prob, prefix in prefix_probs:
-                        for word, word_idx in model.vocab_trie.items(prefix):
-                            next_words.append(word_idx)
+                        for word, word in model.vocab_trie.items(prefix):
+                            next_words.append(word)
                             probs.append(prob)
                 else:
                     last_word = words[-1] if words else model.model.vocab_index(start_words[-1])
                     # print(id2str[last_word])
                     next_words = bigrams.get(last_word, [])
                 new_state = kenlm.State()
-                for next_idx, word_idx in enumerate(next_words):
-                    if word_idx == model.eos_idx or word_idx == model.eop_idx:
+                for next_idx, word in enumerate(next_words):
+                    if word == '</S>' or word == "</s>":
                         continue
                     if probs is not None:
                         prob = probs[next_idx]
                     else:
                         prob = 0.
-                    new_words = words + [word_idx]
-                    new_num_chars = num_chars + prefix_chars + len(model.id2str[word_idx])
-                    yield score + prob + word_score(model.id2str[word_idx], length_bonus) + LOG10 * model.model.base_score_from_idx(last_state, word_idx, new_state), new_words, new_num_chars >= length, last_state, word_idx, new_num_chars
+                    new_words = words + [word]
+                    new_num_chars = num_chars + prefix_chars + len(word)
+                    yield score + prob + word_score(word, length_bonus) + LOG10 * model.model.base_score(last_state, word, new_state), new_words, new_num_chars >= length, last_state, word, new_num_chars
         beam = heapq.nlargest(beam_width, candidates())
-    return [dict(score=score, words=[model.id2str[word] for word in words], done=done, num_chars=num_chars) for score, words, done, _, _, num_chars in sorted(beam, reverse=True)]
+    return [dict(score=score, words=words, done=done, num_chars=num_chars) for score, words, done, _, _, num_chars in sorted(beam, reverse=True)]
 
 
 BORING_WORDS = set('probably unfortunately definitely basically absolutely'.split())

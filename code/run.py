@@ -39,7 +39,9 @@ def tokenize_sofar(sofar):
     toks = ['<s>', "<D>"] + toks[3:-1]
     return toks, cur_word
 #%%
-real_suggs = pd.read_csv('analyzed/by_suggestion.csv')
+real_suggs = pd.read_csv('analyzed/by_suggestion.csv').rename(
+    columns={'generation_prob': 'generation_probs'}
+)
 real_suggs['generation_probs'] = real_suggs.generation_probs.map(lambda x: json.loads(x) if isinstance(x, str) else None)
 
 #%% Transform suggestions into (context, actions-taken, chosen, reward) tuples.
@@ -54,11 +56,11 @@ num_suggestions_offered = 0
 # NOTE: This is a tad wonky because a context will appear multiple times if
 # the author backspaces. Some logging / preprocessing bugs might also
 # introduce some noise here.
-for (part_id, context), data in real_suggs.groupby(('participant_id', 'context')):
+for (part_id, context), data in real_suggs.groupby(['participant_id', 'context']):
     num_contexts += 1
     num_suggs = len(data)
     suggs = [(x.words.split(), x.generation_probs) for x in data.itertuples()]
-    which_chosen = np.argmax(data.num_accepted_words.data)
+    which_chosen = np.argmax(data.num_accepted_words.values)
     reward = data.num_accepted_words.iloc[which_chosen]
     toks, cur_word = tokenize_sofar(context)
     if cur_word:
