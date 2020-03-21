@@ -9,7 +9,6 @@ import kenlm
 import nltk
 import numpy as np
 
-import datrie
 from paths import paths
 from tokenization import tokenize_mid_document
 from util import logsumexp
@@ -18,6 +17,7 @@ LOG10 = np.log(10)
 
 
 def get_arpa_bigrams(filename):
+    vocab = set()
     with open(filename) as f:
         while not f.readline().startswith('\\2-grams:'):
             continue
@@ -29,28 +29,12 @@ def get_arpa_bigrams(filename):
             parts = line.split('\t')
             prob = float(parts[0])
             a, b = parts[1].split(' ')
+            a = sys.intern(a)
+            b = sys.intern(b)
+            vocab.add(a)
+            vocab.add(b)
             bigrams[a].append((prob, b))
-        return bigrams
-
-
-def encode_bigrams(bigrams, model):
-    id2str = {}
-    encoded_bigrams = {}
-    for prev, nexts in bigrams.items():
-        prev_id = model.vocab_index(prev)
-        id2str[prev_id] = prev
-        next_ids = []
-        for prob, b in nexts:
-            next_id = model.vocab_index(b)
-            id2str[next_id] = b
-            next_ids.append((prob, next_id))
-        encoded_bigrams[prev_id] = next_ids
-    def pull_2nd(lst):
-        return [x[1] for x in lst]
-    unfiltered_bigrams = {a: pull_2nd(nexts) for a, nexts in encoded_bigrams.items()}
-    filtered_bigrams = {a: pull_2nd(heapq.nlargest(100, nexts)) for a, nexts in encoded_bigrams.items()}
-    return id2str, unfiltered_bigrams, filtered_bigrams
-
+    return vocab, bigrams
 
 
 class LanguageModel:
@@ -60,41 +44,17 @@ class LanguageModel:
         print("...done.", file=sys.stderr)
 
         # Bigrams
-        if os.path.exists(bigrams_file):
-            print("Loading bigrams pickle", file=sys.stderr)
-            self._bigrams = pickle.load(open(bigrams_file, 'rb'))
-        else:
-            print("Reading ARPA bigrams", file=sys.stderr)
-            bigrams = get_arpa_bigrams(arpa_file)
-            print("Encoding bigrams to indices", file=sys.stderr)
-            self._bigrams = encode_bigrams(bigrams, self.model)
-            print("Saving bigrams", file=sys.stderr)
-            with open(bigrams_file, 'wb') as f:
-                pickle.dump(self._bigrams, f, -1)
+        print("Reading ARPA bigrams", file=sys.stderr)
+        vocab, bigrams = get_arpa_bigrams(arpa_file)
+        self.vocab = sorted(vocab)
 
-        id2str_dict, self.unfiltered_bigrams, self.filtered_bigrams = self._bigrams
-        self.id2str = [None] * (max(id2str_dict.keys()) + 1)
-        for i, s in id2str_dict.items():
-            self.id2str[i] = s
-
-        # Vocab trie
-        self.vocab_trie = datrie.BaseTrie(set(itertools.chain.from_iterable(id2str_dict.values())))
-        for i, s in id2str_dict.items():
-            self.vocab_trie[s] = i
+        def pull_2nd(lst):
+            return [x[1] for x in lst]
+        self.unfiltered_bigrams = {a: pull_2nd(nexts) for a, nexts in bigrams.items()}
+        self.filtered_bigrams = {a: pull_2nd(heapq.nlargest(100, nexts)) for a, nexts in bigrams.items()}
 
         self.eos = '</S>'
         self.eop = '</s>'
-
-    def prune_bigrams(self):
-        # Filter bigrams to only include words that actually follow
-        bigrams = self.unfiltered_bigrams
-        while True:
-            new_bigrams = {k: [tok for tok in v if len(bigrams.get(tok, [])) > 0] for k, v in bigrams.items()}
-            new_bigrams_trim = {k: v for k, v in new_bigrams.items() if len(v) > 0}
-            if len(new_bigrams) == len(new_bigrams_trim):
-                break
-            bigrams = new_bigrams_trim
-        self.unfiltered_bigrams = bigrams
 
     def _compute_pos(self):
         print("Computing pos tags")
@@ -172,16 +132,16 @@ class LanguageModel:
                     next_words.append(word_idx)
                     prior_logprobs.append(logprob)
         else:
-            next_words = bigrams.get(self.model.vocab_index(prev_word), [])
+            next_words = bigrams.get(prev_word, [])
             if len(next_words) == 0:
-                next_words = bigrams.get(self.model.vocab_index('<S>'), [])
+                next_words = self.vocab
             next_words = [w for w in next_words if w != self.eos and w != self.eop]
         if len(next_words) == 0:
             return [], np.zeros(0)
         new_state = kenlm.State()
         logprobs = np.empty(len(next_words))
-        for next_idx, word_idx in enumerate(next_words):
-            logprob = self.model.base_score_from_idx(state, word_idx, new_state)
+        for next_idx, word in enumerate(next_words):
+            logprob = self.model.BaseScore(state, word, new_state)
             if prefix_logprobs is not None:
                 logprob += prior_logprobs[next_idx]
             logprobs[next_idx] = logprob
